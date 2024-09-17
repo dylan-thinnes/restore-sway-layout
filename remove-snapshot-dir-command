@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+for i in `seq 60`; do
+  sleep 1
+  echo $i > $1/death-counter
+done
+rm -r "$1"

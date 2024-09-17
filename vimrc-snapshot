@@ -1,0 +1,25 @@
+" Track sessions between shutdowns
+let g:SessionId = system('head -c1000 /dev/random | md5sum | cut -d" " -f1 | tr -d "\n"')
+
+fu! SessionPath()
+    return $HOME . '/.vim-sessions/' . g:SessionId
+endfunction
+
+fu! SaveSess()
+    call mkdir(SessionPath(), 'p')
+    let fl = readfile($HOME . '/.display-session', 'b')
+    call writefile(fl, SessionPath() . '/display-session', 'b')
+    call writefile([getcwd()], SessionPath() . '/path')
+    call writefile([getpid()], SessionPath() . '/pid')
+    execute 'mksession! ' . SessionPath() . '/session.vim'
+endfunction
+
+fu! ClearSess()
+    if v:dying == 0
+        call delete(SessionPath(), 'rf')
+    fi
+endfunction
+
+autocmd VimLeave * call ClearSess()
+autocmd CursorHold * call SaveSess()
+autocmd VimEnter * call SaveSess()

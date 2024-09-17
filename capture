@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+import ijson
+import json
+import time
+
+from recover import swayutil
+from recover import vim
+from recover import zsh
+from recover import generic
+from recover import firefox
+
+arg_path = sys.argv[1]
+arg = json.load(open(arg_path))
+self_title = arg['self_title']
+type_ = arg['type']
+snapshot = arg['snapshot']
+
+print(f"Self title: {self_title}")
+print(f"Type: {type_}")
+print(f"Snapshot: {snapshot}")
+
+match type_:
+    case "zsh":
+        node = zsh.recover(snapshot, self_title)
+    case "firefox":
+        node = firefox.recover(snapshot, self_title)
+    case "vim":
+        node = vim.recover(snapshot, self_title)
+    case "generic":
+        node = generic.recover(snapshot, self_title)
+    case _:
+        node = None
+        print(f'Unknown type {type_}')
+
+if node is not None:
+    print("Found a matching node!")
+    print(node)
+
+    #print("Press enter to use this node...")
+    #sys.stdin.readline()
+
+    target_id = node['id']
+    swayutil.swaymsg([f'[title="{self_title}"] swap container with con_id {target_id}'])
+else:
+    print("Could not find a matching node.")
+    print("Press enter to dismiss this terminal.")
+    sys.stdin.readline()

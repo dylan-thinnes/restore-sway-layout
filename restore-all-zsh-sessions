@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+shopt -s nullglob
+for root in ~/.zsh-sessions/*; do
+  restore-zsh-session "$root" &
+done

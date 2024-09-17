@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+input=${1:--}
+jq -r '''
+  .[]
+| recurse(.subtrees | values | .[])
+| select(.layout == null and (.type == "vim" or .type == "zsh"))
+| "\(.type) \(.snapshot.id)"
+''' "$input" | while read type root; do
+  case $type in
+    vim)
+      restore-vim-session "$HOME/.vim-sessions/$root" &
+      ;;
+    zsh)
+      restore-zsh-session "$HOME/.zsh-sessions/$root" &
+      ;;
+  esac
+done

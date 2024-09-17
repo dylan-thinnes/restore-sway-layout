@@ -1,0 +1,58 @@
+export SNAPSHOT_ZSH_SESSION_ENABLE=1
+export SNAPSHOT_ZSH_SESSION_ID=$(head -c1000 /dev/random | md5sum | cut -f1 -d' ')
+mkdir -p $HOME/.zsh-sessions
+get-snapshot-dir () {
+  dir=$HOME/.zsh-sessions/$SNAPSHOT_ZSH_SESSION_ID
+  mkdir -p "$dir"
+  echo $$ > $dir/pid
+  echo "$dir"
+}
+save-snapshot-dir () {
+  emulate -L zsh
+  pwd > $(get-snapshot-dir)/pwd
+}
+save-display-session () {
+  emulate -L zsh
+  cp ~/.display-session $(get-snapshot-dir)/display-session
+}
+save-command () {
+  emulate -L zsh
+  echo "$1" > $(get-snapshot-dir)/last-command
+}
+end-command () {
+  emulate -L zsh
+  if [[ -e $(get-snapshot-dir)/last-command ]]; then
+    rm $(get-snapshot-dir)/last-command
+  fi
+}
+save-env () {
+  emulate -L zsh
+  export -p > $(get-snapshot-dir)/env
+}
+remove-snapshot-dir () {
+  emulate -L zsh
+  nohup remove-snapshot-dir-command $(get-snapshot-dir) >/dev/null 2>&1 &
+  disown
+}
+add-zsh-hook preexec save-command
+add-zsh-hook precmd save-snapshot-dir
+add-zsh-hook precmd end-command
+add-zsh-hook precmd save-env
+add-zsh-hook precmd save-display-session
+add-zsh-hook zshexit remove-snapshot-dir
+
+save-snapshot-dir
+save-env
+save-display-session
+
+if [[ $1 == eval ]]; then
+  "$@"
+  set --
+fi
+
+if [[ $1 == source ]]; then
+  set -a
+  source "$2"
+  set +a
+  set --
+fi

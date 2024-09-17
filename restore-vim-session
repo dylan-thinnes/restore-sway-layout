@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+root=$1
+
+pid=$(cat "$root/pid")
+path=$(cat "$root/path")
+if pgrep vim | grep -qx "$pid"; then
+  echo "Ignoring $pid at $root since it's already running" 1>&2
+else
+  tmp=$(mktemp)
+  mv "$root/session.vim" $tmp
+  rm -r "$root"
+  kitty -d "$path" --detach --title "vim-restored-$pid" -- zsh -is eval vim -S $tmp
+fi
