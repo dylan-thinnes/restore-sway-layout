@@ -27,7 +27,7 @@ def make_random_window(tree):
     }, info_fd)
     info_fd.close()
 
-    swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} /home/dylan/tmp/recover/capture "{info_path}"'])
+    swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} python3 -m recover.main.relocate_one "{info_path}"'])
     #swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} --hold echo "{info_path}"'])
     return swayutil.find_item({
         'app_id': 'capture',

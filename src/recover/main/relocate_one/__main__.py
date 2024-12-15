@@ -38,11 +38,11 @@ if node is not None:
     print("Found a matching node!")
     print(node)
 
-    #print("Press enter to use this node...")
-    #sys.stdin.readline()
+    print("Press enter to use this node...")
+    sys.stdin.readline()
 
     target_id = node['id']
-    swayutil.swaymsg([f'[title="{self_title}"] swap container with con_id {target_id}'])
+    swayutil.swaymsg([f'[title="^{self_title}$"] swap container with con_id {target_id}'])
 else:
     print("Could not find a matching node.")
     print("Press enter to dismiss this terminal.")
