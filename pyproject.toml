@@ -1,0 +1,20 @@
+[project]
+name = "recover"
+version = "0.0.1"
+authors = [
+  { name="Dylan Thinnes", email="dylan.thinnes@protonmail.com" },
+]
+description = "A small example package"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
+
+[project.scripts]
+recover-from-pip = "recover:main"
