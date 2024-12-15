@@ -68,7 +68,7 @@ def recover(snapshot, self_title):
         print("Nothing found.")
 
     vim_pid = snapshot['pid']
-    print("Looking for restored session, title = 'vim-restored-{vim_pid}'")
+    print(f"Looking for restored session, title = 'vim-restored-{vim_pid}'")
     return swayutil.find_item({
         'app_id': 'kitty',
         'name': f"vim-restored-{vim_pid}",

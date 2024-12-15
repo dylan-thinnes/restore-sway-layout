@@ -65,7 +65,7 @@ def recover(snapshot, self_title):
         print("Nothing found.")
 
     zsh_pid = snapshot['pid']
-    print("Looking for restored session, title = 'zsh-restored-{zsh_pid}'")
+    print(f"Looking for restored session, title = 'zsh-restored-{zsh_pid}'")
     return swayutil.find_item({
         'app_id': 'kitty',
         'name': f"zsh-restored-{zsh_pid}",
