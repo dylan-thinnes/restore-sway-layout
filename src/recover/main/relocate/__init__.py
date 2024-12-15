@@ -79,4 +79,5 @@ def build_workspaces(workspaces):
     for workspace in workspaces:
         set_workspace(workspace['workspace_num'], workspace['workspace_name'], workspace)
 
-build_workspaces(json.load(sys.stdin))
+def main(args):
+    build_workspaces(json.load(args))

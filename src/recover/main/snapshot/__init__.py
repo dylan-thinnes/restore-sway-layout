@@ -48,25 +48,23 @@ def node_to_tree(node):
 
     return result
 
-numeric_args = [
-    int(string)
-    for string in sys.argv
-    if re.fullmatch('[0-9]+', string)
-]
-
-numeric_args_report = ", ".join(map(str, numeric_args))
-print(f"Got workspace filter: {numeric_args_report}", file=sys.stderr)
-
-if len(numeric_args) > 0:
-    target_workspaces = [
-        workspace
-        for workspace in swayutil.sway_workspaces()
-        if workspace["num"] in numeric_args
+def main(args):
+    numeric_args = [
+        int(string)
+        for string in args.workspace
+        if re.fullmatch('[0-9]+', string)
     ]
-else:
-    target_workspaces = list(swayutil.sway_workspaces())
 
-workspace_report = ", ".join(map(lambda w: str(w['num']), target_workspaces))
-print(f"Workspaces: {workspace_report}", file=sys.stderr)
+    if len(numeric_args) > 0:
+        target_workspaces = [
+            workspace
+            for workspace in swayutil.sway_workspaces()
+            if workspace["num"] in numeric_args
+        ]
+    else:
+        target_workspaces = list(swayutil.sway_workspaces())
 
-json.dump(list(map(node_to_tree, target_workspaces)), sys.stdout)
+    workspace_report = ", ".join(map(lambda w: str(w['num']), target_workspaces))
+    print(f"Workspaces: {workspace_report}", file=sys.stderr)
+
+    json.dump(list(map(node_to_tree, target_workspaces)), args.output)
