@@ -14,7 +14,7 @@ restart and places windows back in the correct workspace and location.
 ### Important TODOs
 - [ ] Add top-level script for constantly saving snapshots, and recovering from a new one on startup
 - [ ] Installation instructions for scripts like zshrc-snapshot and vimrc-snapshot
-- [ ] Make the logic & executables work as a standalone python module that you install, i.e. remove paths to executables & manually installing scripts on $PATH
+- [X] Make the logic & executables work as a standalone python module that you install, i.e. remove paths to executables & manually installing scripts on $PATH
 - [ ] Allow defining custom logic for recreating an app, e.g. launch firefox, launch terminal zsh, launch vim
 - [ ] Basic automated testing (initialize a workspace, blow half of it away, restore it)
 
