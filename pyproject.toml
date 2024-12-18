@@ -17,4 +17,4 @@ Homepage = "https://github.com/pypa/sampleproject"
 Issues = "https://github.com/pypa/sampleproject/issues"
 
 [project.scripts]
-recover-from-pip = "recover:main"
+recover = "recover:main"
