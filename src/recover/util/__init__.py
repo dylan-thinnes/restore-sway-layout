@@ -9,15 +9,22 @@ def kitty_nodes():
     }
 
 def read_file_to_int(path):
-    fd = open(path, 'r')
-    i = int(fd.read())
-    fd.close()
-    return i
+    return read_file_to_f(path, int)
 
 def read_file_to_word(path):
-    fd = open(path, 'r')
-    s = fd.read().strip()
-    fd.close()
+    return read_file_to_f(path, lambda x: x)
+
+def read_file_to_f(path, f):
+    exc = None
+    for attempt in range(10):
+        try:
+            with open(path, 'r') as fd:
+                s = f(fd.read().strip())
+                break
+        except ValueError as ex:
+            exc = ex
+    if exc is not None:
+        raise exc
     return s
 
 def get_display_session_id():

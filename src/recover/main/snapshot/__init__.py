@@ -10,6 +10,8 @@ import psutil
 import json
 import sys
 import re
+import time
+import datetime
 
 def mk_leaf(target_title, app_id):
     return { 'title': target_title, 'app_id': app_id }
@@ -49,22 +51,44 @@ def node_to_tree(node):
     return result
 
 def main(args):
-    numeric_args = [
-        int(string)
-        for string in args.workspace
-        if re.fullmatch('[0-9]+', string)
-    ]
+    output_path = '/dev/stdout' if args.output == '-' else args.output
+    if not os.path.exists(output_path):
+        print(f'Output path {output_path} does not exist!', file=sys.stderr)
+        return
 
-    if len(numeric_args) > 0:
-        target_workspaces = [
-            workspace
-            for workspace in swayutil.sway_workspaces()
-            if workspace["num"] in numeric_args
-        ]
+    is_stdout = args.output == '-' or args.output == '/dev/stdout'
+    if is_stdout:
+        output_stream = sys.stdout
+    elif args.append:
+        output_stream = open(output_path, 'w+')
     else:
-        target_workspaces = list(swayutil.sway_workspaces())
+        output_stream = None
 
-    workspace_report = ", ".join(map(lambda w: str(w['num']), target_workspaces))
-    print(f"Workspaces: {workspace_report}", file=sys.stderr)
+    def take_snapshot():
+        nonlocal output_stream
+        if len(args.workspace) > 0:
+            target_workspaces = [
+                workspace
+                for workspace in swayutil.sway_workspaces()
+                if workspace["num"] in args.workspace
+            ]
+        else:
+            target_workspaces = list(swayutil.sway_workspaces())
 
-    json.dump(list(map(node_to_tree, target_workspaces)), args.output)
+        if output_stream is not None:
+            json.dump(list(map(node_to_tree, target_workspaces)), output_stream)
+            print(file=output_stream)
+            output_stream.flush()
+        else:
+            with open(output_path, 'w') as fd:
+                json.dump(list(map(node_to_tree, target_workspaces)), fd)
+
+    if args.watch is None:
+        take_snapshot()
+    else:
+        n = 0
+        while True:
+            print(f'Saving snapshot #{n} at {datetime.datetime.now()}', file=sys.stderr)
+            take_snapshot()
+            n += 1
+            time.sleep(args.watch)

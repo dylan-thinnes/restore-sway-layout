@@ -15,8 +15,8 @@ from recover import swayutil
 #        return p
 #swayutil = Mock()
 
-def make_random_window(tree):
-    self_title = "capture-{:010d}".format(random.randint(0, 999999999))
+def make_random_window(tree, prompt, keep_prompt):
+    self_title = "capture-{:020d}".format(random.randint(0, 9999999999999999999))
 
     info_path = f"/tmp/{self_title}"
     info_fd = open(info_path, "w")
@@ -27,7 +27,7 @@ def make_random_window(tree):
     }, info_fd)
     info_fd.close()
 
-    swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} python3 -m recover.main.relocate_one "{info_path}"'])
+    swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} python3 -m recover.main.relocate_one "{info_path}" {1 if prompt else 0} {1 if keep_prompt else 0}'])
     #swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} --hold echo "{info_path}"'])
     return swayutil.find_item({
         'app_id': 'capture',
@@ -35,14 +35,14 @@ def make_random_window(tree):
     })
 
 # Build a tree of windows in the specified layout
-def build_tree(tree):
+def build_tree(tree, prompt, keep_prompt):
     if is_leaf(tree):
-        build_leaf(tree)
+        build_leaf(tree, prompt, keep_prompt)
     else:
-        build_tree(tree['subtrees'][0])
+        build_tree(tree['subtrees'][0], prompt, keep_prompt)
         swayutil.swaymsg(['splitv'])
         for subtree in tree['subtrees'][1:]:
-            build_tree(subtree)
+            build_tree(subtree, prompt, keep_prompt)
         swayutil.swaymsg([f'layout {tree["layout"]}'])
         swayutil.swaymsg(['focus parent'])
 
@@ -50,8 +50,8 @@ def build_tree(tree):
 def is_leaf(tree):
     return tree.get("subtrees") is None
 
-def build_leaf(tree):
-    return make_random_window(tree)
+def build_leaf(tree, prompt, keep_prompt):
+    return make_random_window(tree, prompt, keep_prompt)
 
 # Remove empty trees, flatten 1-trees
 def clean_tree(tree):
@@ -70,14 +70,14 @@ def clean_tree(tree):
         }
 
 # Set a workspace to contain a tree
-def set_workspace(num, name, tree):
+def set_workspace(num, name, tree, prompt, keep_prompt):
     swayutil.swaymsg([f'workspace {num}'])
     swayutil.swaymsg([f'rename workspace {num} to "{name}"'])
-    build_tree(clean_tree(tree))
+    build_tree(clean_tree(tree), prompt, keep_prompt)
 
-def build_workspaces(workspaces):
+def build_workspaces(workspaces, prompt, keep_prompt):
     for workspace in workspaces:
-        set_workspace(workspace['workspace_num'], workspace['workspace_name'], workspace)
+        set_workspace(workspace['workspace_num'], workspace['workspace_name'], workspace, prompt, keep_prompt)
 
 def main(args):
-    build_workspaces(json.load(args))
+    build_workspaces(json.load(args.snapshot), args.prompt, args.keep_prompt)
