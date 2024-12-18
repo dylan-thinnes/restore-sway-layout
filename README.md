@@ -12,16 +12,20 @@ state, and then define corresponding functions that restores that state after a
 restart and places windows back in the correct workspace and location.
 
 ### Important TODOs
-- [ ] Add top-level script for constantly saving snapshots, and recovering from a new one on startup
+- [X] Add top-level script for constantly saving snapshots, and recovering from a new one on startup
+  - Added `--watch` flag to snapshot for taking snapshots every `x` seconds
+  - [ ] Add auto-recovery, logic to avoid overwriting files from last session
 - [ ] Installation instructions for scripts like zshrc-snapshot and vimrc-snapshot
 - [X] Make the logic & executables work as a standalone python module that you install, i.e. remove paths to executables & manually installing scripts on $PATH
+  - Core snapshot/relocate functionality are now all bundled in python
 - [ ] Allow defining custom logic for recreating an app, e.g. launch firefox, launch terminal zsh, launch vim
 - [ ] Basic automated testing (initialize a workspace, blow half of it away, restore it)
 
 ### Less important TODOs
-- [ ] Config for adding new snapshot/recover pairs
+- [ ] Config for adding new snapshot/restart/relocate pairs
 - [ ] Replace bash scripts with python for restore-vim-session and restore-zsh-session
-- [ ] Improve the naming around snapshot/recover/restore/capture before they ossify
+- [X] Improve the naming around snapshot/recover/restore/capture before they ossify
+  - Improved to snapshot/restart/relocate
 - [ ] Support other terminal emulators than kitty
 - [ ] Flag to disable auto-capture
 - [ ] Get to the bottom of nohup.out *still* being emitted
