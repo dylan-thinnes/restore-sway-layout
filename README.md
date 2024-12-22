@@ -27,7 +27,7 @@ restart and places windows back in the correct workspace and location.
 - [X] Improve the naming around snapshot/recover/restore/capture before they ossify
   - Improved to snapshot/restart/relocate
 - [ ] Support other terminal emulators than kitty
-- [ ] Flag to disable auto-capture
+- [X] Flag to disable auto-capture
 - [ ] Get to the bottom of nohup.out *still* being emitted
 
 ### Other TODOs
