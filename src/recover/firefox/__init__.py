@@ -11,8 +11,8 @@ def snapshot(node):
     else:
         return None
 
-# Recover in the simplest way possible
-def recover(snapshot, self_title):
+# Find in the simplest way possible
+def find(snapshot, self_title):
     print(f'Looking for a firefox window (app_id: "{snapshot["app_id"]}") with title:')
     print(snapshot["title"])
     return swayutil.find_item({

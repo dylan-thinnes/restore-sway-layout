@@ -54,8 +54,8 @@ def snapshot(node):
     else:
         return None
 
-# Try to recover using info from snapshot
-def recover(snapshot, self_title):
+# Try to find using info from snapshot
+def find(snapshot, self_title):
     if snapshot['display_session'] == util.get_display_session_id() and 'kitty_pid' in snapshot:
         print(f'Instance may still exist, searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
         node = swayutil.find_item({

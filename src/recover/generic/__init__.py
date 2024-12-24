@@ -18,8 +18,8 @@ def snapshot(node):
             'app_id': node['app_id'],
         }
 
-# Recover in the simplest way possible
-def recover(snapshot, self_title):
+# Find in the simplest way possible
+def find(snapshot, self_title):
     if snapshot.get('shell') == 'xwayland':
         print(f'Looking for an xwayland node with properties:')
         print(json.dumps(snapshot))

@@ -30,13 +30,13 @@ print(f"Snapshot: {snapshot}")
 def find_node():
     match type_:
         case "zsh":
-            return zsh.recover(snapshot, self_title)
+            return zsh.find(snapshot, self_title)
         case "firefox":
-            return firefox.recover(snapshot, self_title)
+            return firefox.find(snapshot, self_title)
         case "vim":
-            return vim.recover(snapshot, self_title)
+            return vim.find(snapshot, self_title)
         case "generic":
-            return generic.recover(snapshot, self_title)
+            return generic.find(snapshot, self_title)
         case _:
             print(f'Unknown type {type_}')
             return None
