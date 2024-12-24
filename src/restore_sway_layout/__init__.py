@@ -1,11 +1,11 @@
 import argparse
 import json
 
-from recover.main import relocate
-from recover.main import snapshot
-from recover.main import restart
+from restore_sway_layout.main import relocate
+from restore_sway_layout.main import snapshot
+from restore_sway_layout.main import restart
 
-parser = argparse.ArgumentParser(prog='recover')
+parser = argparse.ArgumentParser(prog='restore_sway_layout')
 subparsers = parser.add_subparsers()
 
 subparser_snapshot = subparsers.add_parser('snapshot', help='Snapshot the layout and state of workspaces')

@@ -26,6 +26,7 @@ restart and places windows back in the correct workspace and location.
 - [ ] Replace bash scripts with python for restore-vim-session and restore-zsh-session
 - [X] Improve the naming around snapshot/recover/restore/capture before they ossify
   - Improved to snapshot/restart/relocate
+  - The tool itself is now `restore_sway_layout`
 - [ ] Support other terminal emulators than kitty
 - [X] Flag to disable auto-capture
 - [ ] Get to the bottom of nohup.out *still* being emitted

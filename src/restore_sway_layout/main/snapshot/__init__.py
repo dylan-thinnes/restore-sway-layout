@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from recover import swayutil
-from recover import vim
-from recover import zsh
-from recover import generic
-from recover import firefox
+from restore_sway_layout import swayutil
+from restore_sway_layout import vim
+from restore_sway_layout import zsh
+from restore_sway_layout import generic
+from restore_sway_layout import firefox
 from glob import glob
 import os
 import psutil

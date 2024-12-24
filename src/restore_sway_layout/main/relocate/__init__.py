@@ -6,7 +6,7 @@ import random
 import tempfile
 import json
 
-from recover import swayutil
+from restore_sway_layout import swayutil
 
 #class Mock:
 #    def __getattr__(self, name):
@@ -27,7 +27,7 @@ def make_random_window(tree, prompt, keep_prompt):
     }, info_fd)
     info_fd.close()
 
-    swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} python3 -m recover.main.relocate_one "{info_path}" {1 if prompt else 0} {1 if keep_prompt else 0}'])
+    swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} python3 -m restore_sway_layout.main.relocate_one "{info_path}" {1 if prompt else 0} {1 if keep_prompt else 0}'])
     #swayutil.swaymsg([f'exec', f'foot -a capture -T {self_title} --hold echo "{info_path}"'])
     return swayutil.find_item({
         'app_id': 'capture',

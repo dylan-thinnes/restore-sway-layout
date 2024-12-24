@@ -1,10 +1,10 @@
 [project]
-name = "recover"
+name = "restore_sway_layout"
 version = "0.0.1"
 authors = [
   { name="Dylan Thinnes", email="dylan.thinnes@protonmail.com" },
 ]
-description = "A small example package"
+description = "Restore the layout of your windows in the sway window manager."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -13,8 +13,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
-Issues = "https://github.com/pypa/sampleproject/issues"
+Homepage = "https://github.com/dylan-thinnes/restore-sway-layout"
+Issues = "https://github.com/dylan-thinnes/restore-sway-layout/issues"
 
 [project.scripts]
-recover = "recover:main"
+restore-sway-layout = "restore_sway_layout:main"

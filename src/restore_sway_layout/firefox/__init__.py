@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from recover import swayutil
+from restore_sway_layout import swayutil
 
 # Always matches
 def snapshot(node):

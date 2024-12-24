@@ -1,4 +1,4 @@
-from recover import swayutil
+from restore_sway_layout import swayutil
 import os
 
 def kitty_nodes():
