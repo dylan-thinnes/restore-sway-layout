@@ -75,9 +75,9 @@ def set_workspace(num, name, tree, prompt, keep_prompt):
     swayutil.swaymsg([f'rename workspace {num} to "{name}"'])
     build_tree(clean_tree(tree), prompt, keep_prompt)
 
-def build_workspaces(workspaces, prompt, keep_prompt):
-    for workspace in workspaces:
+def build_snapshot(snapshot, prompt, keep_prompt):
+    for workspace in snapshot['workspaces']:
         set_workspace(workspace['workspace_num'], workspace['workspace_name'], workspace, prompt, keep_prompt)
 
 def main(args):
-    build_workspaces(json.load(args.snapshot), args.prompt, args.keep_prompt)
+    build_snapshot(json.load(args.snapshot), args.prompt, args.keep_prompt)

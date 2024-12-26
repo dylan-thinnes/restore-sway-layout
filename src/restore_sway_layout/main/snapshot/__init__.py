@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from restore_sway_layout import swayutil
+from restore_sway_layout import util
 from restore_sway_layout import vim
 from restore_sway_layout import zsh
 from restore_sway_layout import generic
@@ -64,7 +65,7 @@ def main(args):
     else:
         output_stream = None
 
-    def take_snapshot():
+    def save_snapshot():
         nonlocal output_stream
         if len(args.workspace) > 0:
             target_workspaces = [
@@ -75,20 +76,27 @@ def main(args):
         else:
             target_workspaces = list(swayutil.sway_workspaces())
 
+        def make_snapshot():
+            return {
+                'timestamp': time.time(),
+                'display_session_id': util.get_display_session_id(),
+                'workspaces': list(map(node_to_tree, target_workspaces))
+            }
+
         if output_stream is not None:
-            json.dump(list(map(node_to_tree, target_workspaces)), output_stream)
+            json.dump(make_snapshot(), output_stream)
             print(file=output_stream)
             output_stream.flush()
         else:
             with open(output_path, 'w') as fd:
-                json.dump(list(map(node_to_tree, target_workspaces)), fd)
+                json.dump(make_snapshot(), fd)
 
     if args.watch is None:
-        take_snapshot()
+        save_snapshot()
     else:
         n = 0
         while True:
             print(f'Saving snapshot #{n} at {datetime.datetime.now()}', file=sys.stderr)
-            take_snapshot()
+            save_snapshot()
             n += 1
             time.sleep(args.watch)
