@@ -18,7 +18,7 @@ from restore_sway_layout import swayutil
 def make_random_window(tree, prompt, keep_prompt):
     self_title = "capture-{:020d}".format(random.randint(0, 9999999999999999999))
 
-    info_path = f"/tmp/{self_title}"
+    info_fileno, info_path = tempfile.mkstemp()
     info_fd = open(info_path, "w")
     json.dump({
         'snapshot': tree['snapshot'],
