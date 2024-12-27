@@ -53,9 +53,6 @@ def node_to_tree(node):
 
 def main(args):
     output_path = '/dev/stdout' if args.output == '-' else args.output
-    if not os.path.exists(output_path):
-        print(f'Output path {output_path} does not exist!', file=sys.stderr)
-        return
 
     is_stdout = args.output == '-' or args.output == '/dev/stdout'
     if is_stdout:
