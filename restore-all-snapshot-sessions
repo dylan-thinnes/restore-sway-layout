@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 input=${1:--}
 jq -r '''
-  .[]
+  .workspaces
+| .[]
 | recurse(.subtrees | values | .[])
 | select(.layout == null and (.type == "vim" or .type == "zsh"))
 | "\(.type) \(.snapshot.id)"
