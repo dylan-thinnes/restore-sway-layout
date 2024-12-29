@@ -11,6 +11,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    'dbus-fast ~= 2.24.2',
+]
 
 [project.urls]
 Homepage = "https://github.com/dylan-thinnes/restore-sway-layout"

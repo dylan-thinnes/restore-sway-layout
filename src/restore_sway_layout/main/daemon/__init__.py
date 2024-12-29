@@ -6,12 +6,24 @@ import os
 import sys
 import asyncio
 
+from dbus_fast.service import ServiceInterface, method
+from dbus_fast.aio import MessageBus
+
+class DbusInterface(ServiceInterface):
+    def __init__(self, socket_file):
+        super().__init__('sway_restore_layout.interface')
+        self.socket_file = socket_file
+
+    @method()
+    def GetSocketFile(self) -> 's':
+        return self.socket_file
+
 async def snapshot_every(duration):
     while True:
         snapshot.save_snapshot(get_output_file())
-        asyncio.sleep(duration)
+        await asyncio.sleep(duration)
 
-async def handle_commands(sock):
+async def handle_commands(sock, tasks):
     line_generator = socket_lines(sock)
     command = None
     async for line in line_generator:
@@ -32,7 +44,8 @@ async def handle_commands(sock):
         elif command == 'take-snapshot-every':
             duration = float(await anext(line_generator))
             print_stderr(f'Taking a snapshot every {duration}')
-            asyncio.create_task(snapshot_every(duration))
+            task = asyncio.create_task(snapshot_every(duration))
+            tasks.append(task)
         else:
             print_stderr(f'Command `{command}` unrecognized')
         command = None
@@ -41,7 +54,20 @@ async def handle_commands(sock):
 def get_output_file():
     return os.path.join(output_dir, session_id + ".json")
 
+async def setup_dbus(socket_file):
+    bus = await MessageBus().connect()
+    print_stderr(f'Found DBus...')
+    interface = DbusInterface(socket_file)
+    bus.export('/sway_restore_layout/instance', interface)
+    await bus.request_name('sway_restore_layout.name')
+    await asyncio.Event().wait()
+
 def main(args):
+    asyncio.run(async_main(args))
+
+async def async_main(args):
+    tasks = []
+
     if args.output is None:
         print_stderr("Must specify an output directory with --output")
         return
@@ -55,14 +81,26 @@ def main(args):
 
     with tempfile.TemporaryDirectory() as socket_dir:
         socket_file = os.path.join(socket_dir, f'restore-sway-layout-{session_id}-ipc.sock')
+        task = asyncio.create_task(setup_dbus(socket_file))
+        tasks.append(task)
         with socket.socket(family=socket.AF_UNIX) as sock:
-            print(socket_file)
             sock.bind(socket_file)
             sock.listen()
-            asyncio.run(handle_connections(sock))
+            if args.write_socket_to is not None:
+                with open(args.write_socket_to, 'w+') as fd:
+                    fd.write(socket_file)
+                print_stderr(f'Wrote socket file name `{socket_file}` into file `{args.write_socket_to}`')
+            else:
+                print(socket_file)
 
-async def handle_connections(sock):
+            await handle_connections(sock, tasks)
+
+    for task in tasks:
+        await task
+
+async def handle_connections(sock, tasks):
     while True:
         conn, conn_addr = await asyncio.to_thread(sock.accept)
         print_stderr(f'Started connection {conn}')
-        asyncio.create_task(handle_commands(conn))
+        task = asyncio.create_task(handle_commands(conn, tasks))
+        tasks.append(task)
