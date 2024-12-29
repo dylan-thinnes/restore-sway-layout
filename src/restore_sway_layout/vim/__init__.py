@@ -20,31 +20,26 @@ def read_vim_session(vim_id):
         'pid': vim_pid,
     }
 
+@util.memoize
 def read_all_vim_sessions():
     vim_ids = os.listdir(os.path.join(os.environ['HOME'], '.vim-sessions'))
     return [read_vim_session(vim_id) for vim_id in vim_ids]
 
-vim_sessions = read_all_vim_sessions()
-kitty_nodes = util.kitty_nodes()
-
 # Find kitty node for a vim session's pid
 def match_vim_pid_to_kitty(vim_pid):
     parent = psutil.Process(vim_pid)
-    while parent.pid not in kitty_nodes and parent is not None:
+    while parent.pid not in util.kitty_nodes() and parent is not None:
         parent = parent.parent()
     return parent.pid
 
 # Save pertinent info for later recovery
 def snapshot(node):
     kitty_to_vim = {}
-    for vim_session in vim_sessions:
+    for vim_session in read_all_vim_sessions():
         if psutil.pid_exists(vim_session['pid']):
             kitty_pid = match_vim_pid_to_kitty(vim_session['pid'])
             vim_session['kitty_pid'] = kitty_pid
             kitty_to_vim[kitty_pid] = vim_session
-
-    #print(f"vim_sessions: {vim_sessions}", file=sys.stderr)
-    #print(f"kitty_to_vim: {kitty_to_vim}", file=sys.stderr)
 
     if node['app_id'] == 'kitty' and node['pid'] in kitty_to_vim:
         return kitty_to_vim[node['pid']]
