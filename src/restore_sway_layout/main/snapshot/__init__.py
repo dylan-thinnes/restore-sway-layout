@@ -51,6 +51,31 @@ def node_to_tree(node):
 
     return result
 
+def save_snapshot(output_path, output_stream=None, workspace_filter=None):
+    if workspace_filter is not None and len(workspace_filter) > 0:
+        target_workspaces = [
+            workspace
+            for workspace in swayutil.sway_workspaces()
+            if workspace["num"] in workspace_filter
+        ]
+    else:
+        target_workspaces = list(swayutil.sway_workspaces())
+
+    def make_snapshot():
+        return {
+            'timestamp': time.time(),
+            'display_session_id': util.get_display_session_id(),
+            'workspaces': list(map(node_to_tree, target_workspaces))
+        }
+
+    if output_stream is not None:
+        json.dump(make_snapshot(), output_stream)
+        print(file=output_stream)
+        output_stream.flush()
+    else:
+        with open(output_path, 'w') as fd:
+            json.dump(make_snapshot(), fd)
+
 def main(args):
     output_path = '/dev/stdout' if args.output == '-' else args.output
 
@@ -62,38 +87,12 @@ def main(args):
     else:
         output_stream = None
 
-    def save_snapshot():
-        nonlocal output_stream
-        if len(args.workspace) > 0:
-            target_workspaces = [
-                workspace
-                for workspace in swayutil.sway_workspaces()
-                if workspace["num"] in args.workspace
-            ]
-        else:
-            target_workspaces = list(swayutil.sway_workspaces())
-
-        def make_snapshot():
-            return {
-                'timestamp': time.time(),
-                'display_session_id': util.get_display_session_id(),
-                'workspaces': list(map(node_to_tree, target_workspaces))
-            }
-
-        if output_stream is not None:
-            json.dump(make_snapshot(), output_stream)
-            print(file=output_stream)
-            output_stream.flush()
-        else:
-            with open(output_path, 'w') as fd:
-                json.dump(make_snapshot(), fd)
-
     if args.watch is None:
-        save_snapshot()
+        save_snapshot(output_path, output_stream, args.workspace)
     else:
         n = 0
         while True:
-            print(f'Saving snapshot #{n} at {datetime.datetime.now()}', file=sys.stderr)
-            save_snapshot()
+            util.print_stderr(f'Saving snapshot #{n} at {datetime.datetime.now()}')
+            save_snapshot(output_path, output_stream, args.workspace)
             n += 1
             time.sleep(args.watch)

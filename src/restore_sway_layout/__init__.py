@@ -4,9 +4,25 @@ import json
 from restore_sway_layout.main import relocate
 from restore_sway_layout.main import snapshot
 from restore_sway_layout.main import restart
+from restore_sway_layout.main import daemon
+from restore_sway_layout.main import ctl
 
 parser = argparse.ArgumentParser(prog='restore_sway_layout')
 subparsers = parser.add_subparsers()
+
+subparser_daemon = subparsers.add_parser('daemon', help='Start a daemon. Outputs IPC socket name.')
+#subparser_daemon.add_argument('--socket-name', '-s', type=str, help='Path on which to create the daemon\'s IPC socket. A random socket is chosen if unspecified.')
+#subparser_daemon.add_argument('--session-id', '-i', type=str, help='Session ID to use. If unspecified, a random 20-digit hex will be used.')
+subparser_daemon.add_argument('--output', type=str, default=None)
+subparser_daemon.set_defaults(func=daemon.main)
+
+subparser_ctl = subparsers.add_parser('ctl', help='Control a running daemon remotely')
+subparser_ctl.add_argument('--socket-file', '-s', type=str, help='Path of socket file')
+subparser_ctl.add_argument('--query-id', action=argparse.BooleanOptionalAction)
+subparser_ctl.add_argument('--echo', type=str)
+subparser_ctl.add_argument('--take-snapshot', action=argparse.BooleanOptionalAction)
+subparser_ctl.add_argument('--take-snapshot-every', type=int, default=None)
+subparser_ctl.set_defaults(func=ctl.main)
 
 subparser_snapshot = subparsers.add_parser('snapshot', help='Snapshot the layout and state of workspaces')
 subparser_snapshot.add_argument('--output', '-o', type=str, default='-')
