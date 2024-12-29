@@ -11,10 +11,6 @@ save-snapshot-dir () {
   emulate -L zsh
   pwd > $(get-snapshot-dir)/pwd
 }
-save-display-session () {
-  emulate -L zsh
-  cp ~/.display-session $(get-snapshot-dir)/display-session
-}
 save-command () {
   emulate -L zsh
   echo "$1" > $(get-snapshot-dir)/last-command
@@ -38,12 +34,10 @@ add-zsh-hook preexec save-command
 add-zsh-hook precmd save-snapshot-dir
 add-zsh-hook precmd end-command
 add-zsh-hook precmd save-env
-add-zsh-hook precmd save-display-session
 add-zsh-hook zshexit remove-snapshot-dir
 
 save-snapshot-dir
 save-env
-save-display-session
 
 if [[ $1 == eval ]]; then
   "$@"

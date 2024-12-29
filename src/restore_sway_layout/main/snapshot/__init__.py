@@ -64,7 +64,6 @@ def save_snapshot(output_path, output_stream=None, workspace_filter=None):
     def make_snapshot():
         return {
             'timestamp': time.time(),
-            'display_session_id': util.get_display_session_id(),
             'workspaces': list(map(node_to_tree, target_workspaces))
         }
 

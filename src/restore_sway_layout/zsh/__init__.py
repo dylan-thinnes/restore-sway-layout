@@ -12,11 +12,8 @@ import re
 def read_zsh_session(zsh_id):
     zsh_pid_path = os.path.join(os.environ['HOME'], ".zsh-sessions", zsh_id, "pid")
     zsh_pid = util.read_file_to_int(zsh_pid_path)
-    zsh_display_session_path = os.path.join(os.environ['HOME'], ".zsh-sessions", zsh_id, "display-session")
-    zsh_display_session = util.read_file_to_word(zsh_display_session_path)
     return {
         'id': zsh_id,
-        'display_session': zsh_display_session,
         'pid': zsh_pid,
     }
 
@@ -53,7 +50,7 @@ def snapshot(node):
 
 # Try to find using info from snapshot
 def find(snapshot, self_title):
-    if snapshot['display_session'] == util.get_display_session_id() and 'kitty_pid' in snapshot:
+    if 'kitty_pid' in snapshot:
         print(f'Instance may still exist, searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
         node = swayutil.find_item({
             'app_id': 'kitty',

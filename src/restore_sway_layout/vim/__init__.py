@@ -14,11 +14,8 @@ def read_vim_session(vim_id):
     vim_pid = util.read_file_to_int(vim_pid_path)
     vim_path_path = os.path.join(os.environ['HOME'], ".vim-sessions", vim_id, "path")
     vim_path = util.read_file_to_word(vim_path_path)
-    vim_display_session_path = os.path.join(os.environ['HOME'], ".vim-sessions", vim_id, "display-session")
-    vim_display_session = util.read_file_to_word(vim_display_session_path)
     return {
         'id': vim_id,
-        'display_session': vim_display_session,
         'path': vim_path,
         'pid': vim_pid,
     }
@@ -56,7 +53,7 @@ def snapshot(node):
 
 # Try to find using info from snapshot
 def find(snapshot, self_title):
-    if snapshot['display_session'] == util.get_display_session_id() and 'kitty_pid' in snapshot:
+    if 'kitty_pid' in snapshot:
         print(f'Instance may still exist, searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
         node = swayutil.find_item({
             'app_id': 'kitty',

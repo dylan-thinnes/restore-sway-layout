@@ -30,9 +30,6 @@ def read_file_to_f(path, f):
         raise exc
     return s
 
-def get_display_session_id():
-    return read_file_to_word(os.path.join(os.environ['HOME'], '.display-session'))
-
 def random_hex(n):
     return ''.join(['0123456789abcdef'[random.randrange(16)] for i in range(n)])
 

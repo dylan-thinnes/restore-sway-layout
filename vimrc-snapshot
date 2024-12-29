@@ -7,8 +7,6 @@ endfunction
 
 fu! SaveSess()
     call mkdir(SessionPath(), 'p')
-    let fl = readfile($HOME . '/.display-session', 'b')
-    call writefile(fl, SessionPath() . '/display-session', 'b')
     call writefile([getcwd()], SessionPath() . '/path')
     call writefile([getpid()], SessionPath() . '/pid')
     execute 'mksession! ' . SessionPath() . '/session.vim'
