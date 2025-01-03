@@ -68,3 +68,23 @@ async def socket_lines(conn):
         if disconnected:
             break
 
+# Remove empty trees, flatten 1-trees
+def clean_tree(tree):
+    if is_leaf(tree):
+        return tree
+
+    subtree_count = len(tree['subtrees'])
+    if subtree_count == 0:
+        return None
+    elif subtree_count == 1:
+        return clean_tree(tree['subtrees'][0])
+    else:
+        return {
+            'layout': tree['layout'],
+            'subtrees': list(map(clean_tree, tree['subtrees']))
+        }
+
+# Test for leaf, turn a leaf into a window, make a leaf targeting a window
+def is_leaf(tree):
+    return tree.get("subtrees") is None
+

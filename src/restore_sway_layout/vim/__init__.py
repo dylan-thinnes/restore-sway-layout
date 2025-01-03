@@ -46,18 +46,28 @@ def snapshot(node):
     else:
         return None
 
-# Try to find using info from snapshot
-def find(snapshot, self_title):
+def find_existing_instance(snapshot):
     if 'kitty_pid' in snapshot:
-        print(f'Instance may still exist, searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
         node = swayutil.find_item({
             'app_id': 'kitty',
             'pid': snapshot['kitty_pid'],
         }, wait=False)
         if node is not None:
-            print("Found an instance.")
             return node
-        print("Nothing found.")
+    return None
+
+def restart(snapshot):
+    vim_sessions = read_all_vim_sessions()
+    matching_sessions = [session for session in vim_sessions if session['id'] == snapshot['id']]
+    print(matching_sessions)
+
+# Try to find using info from snapshot
+def find(snapshot, self_title):
+    existing_node = find_existing_instance(snapshot)
+    if existing_node is not None:
+        print(f'Found an existing instance searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
+        return node
+    print("No existing instance found.")
 
     vim_pid = snapshot['pid']
     print(f"Looking for restored session, title = 'vim-restored-{vim_pid}'")
