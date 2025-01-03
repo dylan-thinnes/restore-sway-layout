@@ -4,15 +4,6 @@ import random
 import sys
 import asyncio
 
-def memoize(f):
-    existing_val = None
-    def memoized():
-        nonlocal existing_val
-        if existing_val is None:
-            existing_val = f()
-        return existing_val
-    return memoized
-
 def kitty_nodes(sway_tree):
     return {
         node['pid']: node

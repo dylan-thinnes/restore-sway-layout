@@ -20,31 +20,35 @@ def read_vim_session(vim_id):
         'pid': vim_pid,
     }
 
-@util.memoize
 def read_all_vim_sessions():
     vim_ids = os.listdir(os.path.join(os.environ['HOME'], '.vim-sessions'))
     return [read_vim_session(vim_id) for vim_id in vim_ids]
 
-# Find kitty node for a vim session's pid
-def match_vim_pid_to_kitty(vim_pid, sway_tree):
-    parent = psutil.Process(vim_pid)
-    while parent.pid not in util.kitty_nodes(sway_tree) and parent is not None:
-        parent = parent.parent()
-    return parent.pid
+class Snapshotter():
+    def __init__(self, sway_tree):
+        self.sway_tree = sway_tree
+        self.all_vim_sessions = read_all_vim_sessions()
 
-# Save pertinent info for later recovery
-def snapshot(node, sway_tree):
-    kitty_to_vim = {}
-    for vim_session in read_all_vim_sessions():
-        if psutil.pid_exists(vim_session['pid']):
-            kitty_pid = match_vim_pid_to_kitty(vim_session['pid'], sway_tree)
-            vim_session['kitty_pid'] = kitty_pid
-            kitty_to_vim[kitty_pid] = vim_session
+    # Save pertinent info for later recovery
+    def snapshot(self, node):
+        kitty_to_vim = {}
+        for vim_session in self.all_vim_sessions:
+            if psutil.pid_exists(vim_session['pid']):
+                kitty_pid = self.match_vim_pid_to_kitty(vim_session['pid'])
+                vim_session['kitty_pid'] = kitty_pid
+                kitty_to_vim[kitty_pid] = vim_session
 
-    if node['app_id'] == 'kitty' and node['pid'] in kitty_to_vim:
-        return kitty_to_vim[node['pid']]
-    else:
-        return None
+        if node['app_id'] == 'kitty' and node['pid'] in kitty_to_vim:
+            return kitty_to_vim[node['pid']]
+        else:
+            return None
+
+    # Find kitty node for a vim session's pid
+    def match_vim_pid_to_kitty(self, vim_pid):
+        parent = psutil.Process(vim_pid)
+        while parent.pid not in util.kitty_nodes(self.sway_tree) and parent is not None:
+            parent = parent.parent()
+        return parent.pid
 
 def find_existing_instance(snapshot):
     if 'kitty_pid' in snapshot:

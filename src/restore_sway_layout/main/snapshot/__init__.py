@@ -17,7 +17,7 @@ import datetime
 def mk_leaf(target_title, app_id):
     return { 'title': target_title, 'app_id': app_id }
 
-def node_to_tree(node, sway_tree):
+def node_to_tree(node, snapshotters, sway_tree):
     result = {}
 
     if node['type'] == 'workspace':
@@ -25,29 +25,17 @@ def node_to_tree(node, sway_tree):
         result['workspace_name'] = node['name']
 
     if node['layout'] == 'none':
-        vim_snapshot = vim.snapshot(node, sway_tree)
-        zsh_snapshot = zsh.snapshot(node, sway_tree)
-        generic_snapshot = generic.snapshot(node, sway_tree)
-        firefox_snapshot = firefox.snapshot(node, sway_tree)
-        if vim_snapshot is not None:
-            result['type'] = 'vim'
-            result['snapshot'] = vim_snapshot
-        elif zsh_snapshot is not None:
-            result['type'] = 'zsh'
-            result['snapshot'] = zsh_snapshot
-        elif firefox_snapshot is not None:
-            result['type'] = 'firefox'
-            result['snapshot'] = firefox_snapshot
-        elif generic_snapshot is not None:
-            # Default to populating the title and app_id
-            result['type'] = 'generic'
-            result['snapshot'] = generic_snapshot
-        else:
-            result['type'] = 'unknown'
-            result['snapshot'] = node
+        result['type'] = 'unknown'
+        result['snapshot'] = node
+        for name, snapshotter in snapshotters:
+            node_snapshot = snapshotter.snapshot(node)
+            if node_snapshot is not None:
+                result['type'] = name
+                result['snapshot'] = node_snapshot
+                break
     else:
         result['layout'] = node['layout']
-        result['subtrees'] = [node_to_tree(node, sway_tree) for node in node['nodes']]
+        result['subtrees'] = [node_to_tree(node, snapshotters, sway_tree) for node in node['nodes']]
 
     return result
 
@@ -62,10 +50,17 @@ def save_snapshot(output_path, output_stream=None, workspace_filter=None):
     else:
         target_workspaces = list(swayutil.sway_workspaces(sway_tree))
 
+    snapshotters = [
+        ('vim', vim.Snapshotter(sway_tree)),
+        ('zsh', zsh.Snapshotter(sway_tree)),
+        ('firefox', firefox),
+        ('generic', generic),
+    ]
+
     def make_snapshot():
         return {
             'timestamp': time.time(),
-            'workspaces': [node_to_tree(workspace, sway_tree) for workspace in target_workspaces]
+            'workspaces': [node_to_tree(workspace, snapshotters, sway_tree) for workspace in target_workspaces]
         }
 
     if output_stream is not None:

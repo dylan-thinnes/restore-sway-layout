@@ -2,7 +2,7 @@
 from restore_sway_layout import swayutil
 
 # Always matches
-def snapshot(node, sway_tree):
+def snapshot(node):
     if node.get('app_id') == 'firefox':
         return {
             'title': node['name'],
