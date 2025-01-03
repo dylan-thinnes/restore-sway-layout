@@ -26,18 +26,18 @@ def read_all_vim_sessions():
     return [read_vim_session(vim_id) for vim_id in vim_ids]
 
 # Find kitty node for a vim session's pid
-def match_vim_pid_to_kitty(vim_pid):
+def match_vim_pid_to_kitty(vim_pid, sway_tree):
     parent = psutil.Process(vim_pid)
-    while parent.pid not in util.kitty_nodes() and parent is not None:
+    while parent.pid not in util.kitty_nodes(sway_tree) and parent is not None:
         parent = parent.parent()
     return parent.pid
 
 # Save pertinent info for later recovery
-def snapshot(node):
+def snapshot(node, sway_tree):
     kitty_to_vim = {}
     for vim_session in read_all_vim_sessions():
         if psutil.pid_exists(vim_session['pid']):
-            kitty_pid = match_vim_pid_to_kitty(vim_session['pid'])
+            kitty_pid = match_vim_pid_to_kitty(vim_session['pid'], sway_tree)
             vim_session['kitty_pid'] = kitty_pid
             kitty_to_vim[kitty_pid] = vim_session
 

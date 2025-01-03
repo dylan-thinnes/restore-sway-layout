@@ -23,18 +23,18 @@ def read_all_zsh_sessions():
     return [read_zsh_session(zsh_id) for zsh_id in zsh_ids]
 
 # Find kitty node for a zsh session's pid
-def match_zsh_pid_to_kitty(zsh_pid):
+def match_zsh_pid_to_kitty(zsh_pid, sway_tree):
     parent = psutil.Process(zsh_pid)
-    while parent.pid not in util.kitty_nodes() and parent is not None:
+    while parent.pid not in util.kitty_nodes(sway_tree) and parent is not None:
         parent = parent.parent()
     return parent.pid
 
 # Save pertinent info for later recovery
-def snapshot(node):
+def snapshot(node, sway_tree):
     kitty_to_zsh = {}
     for zsh_session in read_all_zsh_sessions():
         if psutil.pid_exists(zsh_session['pid']):
-            kitty_pid = match_zsh_pid_to_kitty(zsh_session['pid'])
+            kitty_pid = match_zsh_pid_to_kitty(zsh_session['pid'], sway_tree)
             zsh_session['kitty_pid'] = kitty_pid
             kitty_to_zsh[kitty_pid] = zsh_session
 

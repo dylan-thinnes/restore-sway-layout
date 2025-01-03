@@ -17,7 +17,7 @@ import datetime
 def mk_leaf(target_title, app_id):
     return { 'title': target_title, 'app_id': app_id }
 
-def node_to_tree(node):
+def node_to_tree(node, sway_tree):
     result = {}
 
     if node['type'] == 'workspace':
@@ -25,10 +25,10 @@ def node_to_tree(node):
         result['workspace_name'] = node['name']
 
     if node['layout'] == 'none':
-        vim_snapshot = vim.snapshot(node)
-        zsh_snapshot = zsh.snapshot(node)
-        generic_snapshot = generic.snapshot(node)
-        firefox_snapshot = firefox.snapshot(node)
+        vim_snapshot = vim.snapshot(node, sway_tree)
+        zsh_snapshot = zsh.snapshot(node, sway_tree)
+        generic_snapshot = generic.snapshot(node, sway_tree)
+        firefox_snapshot = firefox.snapshot(node, sway_tree)
         if vim_snapshot is not None:
             result['type'] = 'vim'
             result['snapshot'] = vim_snapshot
@@ -47,24 +47,25 @@ def node_to_tree(node):
             result['snapshot'] = node
     else:
         result['layout'] = node['layout']
-        result['subtrees'] = list(map(node_to_tree, node['nodes']))
+        result['subtrees'] = [node_to_tree(node, sway_tree) for node in node['nodes']]
 
     return result
 
 def save_snapshot(output_path, output_stream=None, workspace_filter=None):
+    sway_tree = swayutil.sway_get_tree()
     if workspace_filter is not None and len(workspace_filter) > 0:
         target_workspaces = [
             workspace
-            for workspace in swayutil.sway_workspaces()
+            for workspace in swayutil.sway_workspaces(sway_tree)
             if workspace["num"] in workspace_filter
         ]
     else:
-        target_workspaces = list(swayutil.sway_workspaces())
+        target_workspaces = list(swayutil.sway_workspaces(sway_tree))
 
     def make_snapshot():
         return {
             'timestamp': time.time(),
-            'workspaces': list(map(node_to_tree, target_workspaces))
+            'workspaces': [node_to_tree(workspace, sway_tree) for workspace in target_workspaces]
         }
 
     if output_stream is not None:

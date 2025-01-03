@@ -3,7 +3,7 @@ import json
 from restore_sway_layout import swayutil
 
 # Always matches
-def snapshot(node):
+def snapshot(node, sway_tree):
     if node.get('shell') == 'xwayland':
         return {
             'title': node['name'],

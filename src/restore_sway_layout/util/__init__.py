@@ -13,11 +13,10 @@ def memoize(f):
         return existing_val
     return memoized
 
-@memoize
-def kitty_nodes():
+def kitty_nodes(sway_tree):
     return {
         node['pid']: node
-        for node in swayutil.sway_nodes()
+        for node in swayutil.sway_nodes(sway_tree)
         if node.get('app_id') == 'kitty'
     }
 
