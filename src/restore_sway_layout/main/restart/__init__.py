@@ -1,6 +1,7 @@
 import json
 from restore_sway_layout import vim
 from restore_sway_layout import zsh
+from restore_sway_layout import firefox
 from restore_sway_layout import util
 from restore_sway_layout import swayutil
 
@@ -18,7 +19,8 @@ def main(args):
     sway_tree = swayutil.sway_get_tree()
     restarters = [
         ('vim', vim.Restarter(sway_tree)),
-        ('zsh', zsh.Restarter(sway_tree))
+        ('zsh', zsh.Restarter(sway_tree)),
+        ('firefox', firefox.Restarter()),
     ]
     for workspace in snapshot['workspaces']:
         for leaf in leaves(workspace):
