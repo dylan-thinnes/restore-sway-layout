@@ -32,8 +32,9 @@ def sway_get_tree():
 def swaymsg(args):
     return subprocess.run(['swaymsg'] + args, capture_output=True)
 
-def find_item(target, wait=True):
-    for item in sway_nodes():
+def find_item(target, wait=True, existing_tree=None):
+    sway_tree = sway_get_tree() if existing_tree is None else existing_tree
+    for item in sway_nodes(sway_tree):
         if match_generic(target, item):
             return item
 
