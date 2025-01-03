@@ -1,5 +1,5 @@
 import socket
-from restore_sway_layout.util import random_hex, print_stderr, socket_lines
+from restore_sway_layout.util import random_hex, print_stderr
 from restore_sway_layout import snapshot
 import tempfile
 import os
@@ -30,11 +30,7 @@ async def snapshot_every(starting_duration, new_duration_queue):
 
 async def handle_commands(reader, writer, tasks, new_duration_queue):
     command = None
-    while True:
-        raw_line = await reader.readline()
-        if not raw_line:
-            break
-
+    async for raw_line in reader:
         line = raw_line.decode('utf-8').rstrip()
         if line == '':
             continue

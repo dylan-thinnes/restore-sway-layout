@@ -1,16 +1,12 @@
 import socket
-from restore_sway_layout.util import socket_lines, print_stderr
+from restore_sway_layout.util import print_stderr
 import asyncio
 
 from dbus_fast import Message, MessageType
 from dbus_fast.aio import MessageBus
 
 async def dump_socket(reader):
-    while True:
-        raw_line = await reader.readline()
-        if not raw_line:
-            break
-
+    async for raw_line in reader:
         line = raw_line.decode('utf-8').rstrip()
         print(line)
 
