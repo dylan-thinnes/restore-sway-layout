@@ -98,7 +98,7 @@ def find(snapshot, self_title):
     existing_node = find_existing_instance(snapshot)
     if existing_node is not None:
         print(f'Found an existing instance searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
-        return node
+        return existing_node
     print("No existing instance found.")
 
     vim_pid = snapshot['pid']
