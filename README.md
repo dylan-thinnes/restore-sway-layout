@@ -20,7 +20,7 @@ Currently in alpha, may work on your machine, no guarantees whatsoever though.
 
 - Take a snapshot of your system with `restore-sway-layout snapshot`
 - Currently, this doesn't restart all your applications from a snapshot.
-  However, there are script for restarting your vim and zsh instances, assuming
+  However, there are scripts for restarting your vim and zsh instances, assuming
   you've copied zshrc-snapshot to the **end** of your `.zshrc`, and
   vimrc-snapshot to the end of your `.vimrc`.
 
