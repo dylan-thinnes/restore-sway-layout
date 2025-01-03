@@ -14,6 +14,7 @@ subparser_daemon = subparsers.add_parser('daemon', help='Start a daemon. Outputs
 #subparser_daemon.add_argument('--socket-name', '-s', type=str, help='Path on which to create the daemon\'s IPC socket. A random socket is chosen if unspecified.')
 #subparser_daemon.add_argument('--session-id', '-i', type=str, help='Session ID to use. If unspecified, a random 20-digit hex will be used.')
 subparser_daemon.add_argument('--write-socket-to', type=str, help='Filepath to which to write the name of the socket. If unspecified, the socket name will be printed to stdout.', default=None)
+subparser_daemon.add_argument('--rate', '-r', type=int, required=True)
 subparser_daemon.add_argument('--output', type=str, default=None)
 subparser_daemon.set_defaults(func=daemon.main)
 
@@ -21,16 +22,13 @@ subparser_ctl = subparsers.add_parser('ctl', help='Control a running daemon remo
 subparser_ctl.add_argument('--socket-file', '-s', type=str, help='Path of socket file')
 subparser_ctl.add_argument('--dbus', '-d', action=argparse.BooleanOptionalAction, help='Use DBus to discover socket file')
 subparser_ctl.add_argument('--query-id', action=argparse.BooleanOptionalAction)
-subparser_ctl.add_argument('--echo', type=str)
-subparser_ctl.add_argument('--take-snapshot', action=argparse.BooleanOptionalAction)
-subparser_ctl.add_argument('--take-snapshot-every', type=int, default=None)
+subparser_ctl.add_argument('--echo', type=str, help=argparse.SUPPRESS)
+subparser_ctl.add_argument('--update-snapshot', action=argparse.BooleanOptionalAction)
+subparser_ctl.add_argument('--set-rate', type=int, default=None)
 subparser_ctl.set_defaults(func=ctl.main)
 
 subparser_snapshot = subparsers.add_parser('snapshot', help='Snapshot the layout and state of workspaces')
 subparser_snapshot.add_argument('--output', '-o', type=str, default='-')
-subparser_snapshot.add_argument('--watch', '-w', type=int)
-subparser_snapshot.add_argument('--append', action=argparse.BooleanOptionalAction, help='Append new snapshots to the output file instead of overwriting. This is always true if the output file is \'/dev/stdout\' or \'-\'')
-subparser_snapshot.add_argument('workspace', nargs='*', type=float, help='Index of workspace to save. If unspecified, all workspaces are saved.')
 subparser_snapshot.set_defaults(func=snapshot.main)
 
 subparser_restart = subparsers.add_parser('restart', help='Restart programs based on a snapshot (not yet implemented)')

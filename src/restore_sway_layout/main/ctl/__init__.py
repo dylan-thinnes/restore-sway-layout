@@ -40,10 +40,10 @@ async def async_main(args):
             sock.send(b'query-id\n')
         elif args.echo is not None:
             sock.send(b'echo\n' + args.echo.encode('utf-8') + b'\n')
-        elif args.take_snapshot:
-            sock.send(b'take-snapshot\n')
-        elif args.take_snapshot_every is not None:
-            sock.send(b'take-snapshot-every\n' + str(args.take_snapshot_every).encode('utf-8') + b'\n')
+        elif args.update_snapshot:
+            sock.send(b'update-snapshot\n')
+        elif args.set_rate is not None:
+            sock.send(b'set-rate\n' + str(args.set_rate).encode('utf-8') + b'\n')
         sock.shutdown(socket.SHUT_WR)
         await task
 

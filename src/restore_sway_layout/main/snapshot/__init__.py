@@ -13,6 +13,7 @@ import sys
 import re
 import time
 import datetime
+import io
 
 def mk_leaf(target_title, app_id):
     return { 'title': target_title, 'app_id': app_id }
@@ -39,16 +40,9 @@ def node_to_tree(node, snapshotters, sway_tree):
 
     return result
 
-def save_snapshot(output_path, output_stream=None, workspace_filter=None):
+def save_snapshot(output_path_or_stream):
     sway_tree = swayutil.sway_get_tree()
-    if workspace_filter is not None and len(workspace_filter) > 0:
-        target_workspaces = [
-            workspace
-            for workspace in swayutil.sway_workspaces(sway_tree)
-            if workspace["num"] in workspace_filter
-        ]
-    else:
-        target_workspaces = list(swayutil.sway_workspaces(sway_tree))
+    target_workspaces = list(swayutil.sway_workspaces(sway_tree))
 
     snapshotters = [
         ('vim', vim.Snapshotter(sway_tree)),
@@ -63,31 +57,19 @@ def save_snapshot(output_path, output_stream=None, workspace_filter=None):
             'workspaces': [node_to_tree(workspace, snapshotters, sway_tree) for workspace in target_workspaces]
         }
 
-    if output_stream is not None:
-        json.dump(make_snapshot(), output_stream)
-        print(file=output_stream)
-        output_stream.flush()
+    if isinstance(output_path_or_stream, io.IOBase):
+        json.dump(make_snapshot(), output_path_or_stream)
+        print(file=output_path_or_stream)
+        output_path_or_stream.flush()
     else:
-        with open(output_path, 'w') as fd:
+        with open(output_path_or_stream, 'w') as fd:
             json.dump(make_snapshot(), fd)
 
 def main(args):
     output_path = '/dev/stdout' if args.output == '-' else args.output
 
-    is_stdout = args.output == '-' or args.output == '/dev/stdout'
-    if is_stdout:
-        output_stream = sys.stdout
-    elif args.append:
-        output_stream = open(output_path, 'w+')
+    if output_path == '/dev/stdout':
+        save_snapshot(sys.stdout)
     else:
-        output_stream = None
+        save_snapshot(output_path)
 
-    if args.watch is None:
-        save_snapshot(output_path, output_stream, args.workspace)
-    else:
-        n = 0
-        while True:
-            util.print_stderr(f'Saving snapshot #{n} at {datetime.datetime.now()}')
-            save_snapshot(output_path, output_stream, args.workspace)
-            n += 1
-            time.sleep(args.watch)
