@@ -7,14 +7,20 @@ import psutil
 import json
 import sys
 import re
+import tempfile
+import shutil
+import subprocess
 
 # Read stored zsh sessions
 def read_zsh_session(zsh_id):
     zsh_pid_path = os.path.join(os.environ['HOME'], ".zsh-sessions", zsh_id, "pid")
     zsh_pid = util.read_file_to_int(zsh_pid_path)
+    zsh_pwd_path = os.path.join(os.environ['HOME'], ".zsh-sessions", zsh_id, "pwd")
+    zsh_pwd = util.read_file_to_word(zsh_pwd_path)
     return {
         'id': zsh_id,
         'pid': zsh_pid,
+        'pwd': zsh_pwd,
     }
 
 def read_all_zsh_sessions():
@@ -47,18 +53,55 @@ class Snapshotter():
         else:
             return None
 
-# Try to find using info from snapshot
-def find(snapshot, self_title):
+class Restarter():
+    def __init__(self, sway_tree):
+        self.sway_tree = sway_tree
+        self.all_zsh_sessions = read_all_zsh_sessions()
+
+    def restart(self, type_, snapshot):
+        if type_ == 'zsh':
+            existing_node = find_existing_instance(snapshot, self.sway_tree)
+            if existing_node is not None:
+                print(f'Info: Not restarting zsh snapshot node {snapshot} because it is already running.')
+                pass
+            else:
+                matching_sessions = [session for session in self.all_zsh_sessions if session['id'] == snapshot['id']]
+                if len(matching_sessions) == 1:
+                    return lambda: self.restart_one(matching_sessions[0])
+                elif len(matching_sessions) > 1:
+                    print(f'Warning: More than one zsh session matched snapshot {snapshot}, this should not happen!')
+                    pass
+                else:
+                    pass
+        return None
+
+    def restart_one(self, session):
+        print('Restart one: ', session)
+        tmpdir = tempfile.mkdtemp()
+        src_zsh_session = os.path.join(os.environ['HOME'], ".zsh-sessions", session['id'])
+        src_zsh_session_env = os.path.join(src_zsh_session, "env")
+        dst_zsh_session_env = os.path.join(tmpdir, 'env')
+        shutil.copyfile(src_vim_session_file, dst_vim_session_file)
+        shutil.rmtree(src_zsh_session)
+        return subprocess.run(['kitty', '-d', session['pwd'], '--detach', '--title', f"zsh-restored-{session['pid']}", '--', 'zsh', '-is', 'source', dst_zsh_session_env])
+
+def find_existing_instance(snapshot, existing_tree=None):
     if 'kitty_pid' in snapshot:
-        print(f'Instance may still exist, searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
         node = swayutil.find_item({
             'app_id': 'kitty',
             'pid': snapshot['kitty_pid'],
-        }, wait=False)
+        }, wait=False, existing_tree=existing_tree)
         if node is not None:
-            print("Found an instance.")
             return node
-        print("Nothing found.")
+    return None
+
+# Try to find using info from snapshot
+def find(snapshot, self_title):
+    existing_node = find_existing_instance(snapshot)
+    if existing_node is not None:
+        print(f'Found an existing instance searching for app_id = "kitty" and pid = {snapshot["kitty_pid"]}...')
+        return existing_node
+    print("No existing instance found.")
 
     zsh_pid = snapshot['pid']
     print(f"Looking for restored session, title = 'zsh-restored-{zsh_pid}'")

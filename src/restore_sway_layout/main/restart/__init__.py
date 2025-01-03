@@ -1,5 +1,6 @@
 import json
 from restore_sway_layout import vim
+from restore_sway_layout import zsh
 from restore_sway_layout import util
 from restore_sway_layout import swayutil
 
@@ -16,12 +17,14 @@ def main(args):
     snapshot = util.clean_tree(snapshot)
     sway_tree = swayutil.sway_get_tree()
     restarters = [
-        ('vim', vim.Restarter(sway_tree))
+        ('vim', vim.Restarter(sway_tree)),
+        ('zsh', zsh.Restarter(sway_tree))
     ]
     for workspace in snapshot['workspaces']:
         for leaf in leaves(workspace):
             for name, restarter in restarters:
-                result = restarter.restart(leaf['type'], leaf['snapshot'])
-                if result is not None:
-                    util.print_stderr(name, result)
-                    result()
+                restarter = restarter.restart(leaf['type'], leaf['snapshot'])
+                if restarter is not None:
+                    util.print_stderr(f'Found restarter for snapshot {leaf}: {restarter}')
+                    util.print_stderr(f'Running restarter...')
+                    restarter()
