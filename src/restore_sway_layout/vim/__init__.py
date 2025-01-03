@@ -7,6 +7,9 @@ import psutil
 import json
 import sys
 import re
+import tempfile
+import shutil
+import subprocess
 
 # Read stored vim sessions
 def read_vim_session(vim_id):
@@ -50,20 +53,45 @@ class Snapshotter():
             parent = parent.parent()
         return parent.pid
 
-def find_existing_instance(snapshot):
+def find_existing_instance(snapshot, existing_tree=None):
     if 'kitty_pid' in snapshot:
         node = swayutil.find_item({
             'app_id': 'kitty',
             'pid': snapshot['kitty_pid'],
-        }, wait=False)
+        }, wait=False, existing_tree=existing_tree)
         if node is not None:
             return node
     return None
 
-def restart(snapshot):
-    vim_sessions = read_all_vim_sessions()
-    matching_sessions = [session for session in vim_sessions if session['id'] == snapshot['id']]
-    print(matching_sessions)
+class Restarter():
+    def __init__(self, sway_tree):
+        self.sway_tree = sway_tree
+        self.all_vim_sessions = read_all_vim_sessions()
+
+    def restart(self, type_, snapshot):
+        if type_ == 'vim':
+            existing_node = find_existing_instance(snapshot, self.sway_tree)
+            if existing_node is not None:
+                print(f'Info: Not restarting vim snapshot node {snapshot} because it is already running.')
+                pass
+            else:
+                matching_sessions = [session for session in self.all_vim_sessions if session['id'] == snapshot['id']]
+                if len(matching_sessions) == 1:
+                    return lambda: self.restart_one(matching_sessions[0])
+                elif len(matching_sessions) > 1:
+                    print(f'Warning: More than one vim session matched snapshot {snapshot}, this should not happen!')
+                    pass
+                else:
+                    pass
+        return None
+
+    def restart_one(self, session):
+        print('Restart one: ', session)
+        tmpdir = tempfile.mkdtemp()
+        src_vim_session = os.path.join(os.environ['HOME'], ".vim-sessions", session['id'], "session.vim")
+        dst_vim_session = os.path.join(tmpdir, 'session.vim')
+        shutil.copyfile(src_vim_session, dst_vim_session)
+        return subprocess.run(['kitty', '-d', session['path'], '--detach', '--title', f"vim-restored-{session['pid']}", '--', 'zsh', '-is', 'eval', 'vim', '-S', dst_vim_session])
 
 # Try to find using info from snapshot
 def find(snapshot, self_title):
