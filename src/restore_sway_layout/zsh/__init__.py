@@ -81,7 +81,7 @@ class Restarter():
         src_zsh_session = os.path.join(os.environ['HOME'], ".zsh-sessions", session['id'])
         src_zsh_session_env = os.path.join(src_zsh_session, "env")
         dst_zsh_session_env = os.path.join(tmpdir, 'env')
-        shutil.copyfile(src_vim_session_file, dst_vim_session_file)
+        shutil.copyfile(src_zsh_session_env, dst_zsh_session_env)
         shutil.rmtree(src_zsh_session)
         return subprocess.run(['kitty', '-d', session['pwd'], '--detach', '--title', f"zsh-restored-{session['pid']}", '--', 'zsh', '-is', 'source', dst_zsh_session_env])
 
