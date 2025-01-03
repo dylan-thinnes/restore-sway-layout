@@ -31,8 +31,15 @@ Currently in alpha, may work on your machine, no guarantees whatsoever though.
 - Launch a long-running daemon which places snapshots periodically with
 
   ```sh
-  > restore-sway-layout daemon --output <directory for snapshots> &
-  > restore-sway-layout ctl --dbus --take-snapshot-every 30
+  > restore-sway-layout daemon --output <directory for snapshots> --rate 30
+  ```
+
+  You can update the snapshot rate, or force a snapshot, with the `ctl`
+  subcommand:
+
+  ```sh
+  > restore-sway-layout ctl --dbus --update-snapshot
+  > restore-sway-layout ctl --dbus --set-rate 10
   ```
 
   If you don't have Dbus running, you can communicate directly with the running
@@ -40,11 +47,11 @@ Currently in alpha, may work on your machine, no guarantees whatsoever though.
   file:
 
   ```sh
-  > restore-sway-layout daemon --output <directory for snapshots> --write-socket-to sockfile &
+  > restore-sway-layout daemon --output <directory for snapshots> --write-socket-to sockfile --rate 30
   # Sockfile now contains path to socket for IPC with the daemon
   > cat sockfile
   /tmp/tmpyknk869l/restore-sway-layout-50107167095afd9f47dc-ipc.sock
-  > restore-sway-layout ctl --socket-file $(cat sockfile) --take-snapshot-every 1
+  > restore-sway-layout ctl --socket-file $(cat sockfile) --update-snapshot
   ```
 
 ### Important TODOs
