@@ -88,10 +88,12 @@ class Restarter():
     def restart_one(self, session):
         print('Restart one: ', session)
         tmpdir = tempfile.mkdtemp()
-        src_vim_session = os.path.join(os.environ['HOME'], ".vim-sessions", session['id'], "session.vim")
-        dst_vim_session = os.path.join(tmpdir, 'session.vim')
-        shutil.copyfile(src_vim_session, dst_vim_session)
-        return subprocess.run(['kitty', '-d', session['path'], '--detach', '--title', f"vim-restored-{session['pid']}", '--', 'zsh', '-is', 'eval', 'vim', '-S', dst_vim_session])
+        src_vim_session = os.path.join(os.environ['HOME'], ".vim-sessions", session['id'])
+        src_vim_session_file = os.path.join(src_vim_session, "session.vim")
+        dst_vim_session_file = os.path.join(tmpdir, 'session.vim')
+        shutil.copyfile(src_vim_session_file, dst_vim_session_file)
+        shutil.rmtree(src_vim_session)
+        return subprocess.run(['kitty', '-d', session['path'], '--detach', '--title', f"vim-restored-{session['pid']}", '--', 'zsh', '-is', 'eval', 'vim', '-S', dst_vim_session_file])
 
 # Try to find using info from snapshot
 def find(snapshot, self_title):
