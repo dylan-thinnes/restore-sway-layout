@@ -22,7 +22,7 @@ class Restarter():
             if not self.seen:
                 self.seen = True
                 util.print_stderr('Found an instance of firefox, restarting by running `firefox`...')
-                return lambda: subprocess.run(['firefox', '-no-remote'])
+                return lambda: swayutil.swaymsg(['exec firefox -no-remote'])
             else:
                 util.print_stderr('Found an instance of firefox, but we\'ve already run a restart command.')
 
