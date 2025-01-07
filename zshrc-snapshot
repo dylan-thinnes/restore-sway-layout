@@ -1,13 +1,23 @@
-export SNAPSHOT_ZSH_SESSION_ENABLE=1
-export SNAPSHOT_ZSH_SESSION_ID=$(head -c1000 /dev/random | md5sum | cut -f1 -d' ')
+export ZSH_SESSION_ENABLE=1
+export ZSH_SESSION_ID=$(head -c1000 /dev/random | md5sum | cut -f1 -d' ')
 mkdir -p $HOME/.zsh-sessions
+
 get-snapshot-dir () {
-  dir=$HOME/.zsh-sessions/$SNAPSHOT_ZSH_SESSION_ID
+  dir=$HOME/.zsh-sessions/$ZSH_SESSION_ID
   mkdir -p "$dir"
   echo $$ > $dir/pid
   echo "$dir"
 }
-save-snapshot-dir () {
+
+if [[ -n "$ZSH_SESSION_DUMP_STDOUT_TO" ]]; then
+  echo "$ZSH_SESSION_DUMP_STDOUT_TO" > $(get-snapshot-dir)/stdout
+fi
+
+save-history () {
+  emulate -L zsh
+  fc -W $(get-snapshot-dir)/history
+}
+save-snapshot-pwd () {
   emulate -L zsh
   pwd > $(get-snapshot-dir)/pwd
 }
@@ -30,13 +40,38 @@ remove-snapshot-dir () {
   nohup remove-snapshot-dir-command $(get-snapshot-dir) >/dev/null 2>&1 &
   disown
 }
+setup-env () {
+  emulate -L zsh
+  if [[ -n "$ZSH_SESSION_PREENV_FILE" && -z "$ZSH_SESSION_PREENV_FILE_USED" ]]; then
+    source "$ZSH_SESSION_PREENV_FILE"
+    export ZSH_SESSION_PREENV_FILE_USED="true"
+  fi
+}
+setup-output () {
+  emulate -L zsh
+  if [[ -n "$ZSH_SESSION_PREOUTPUT_FILE" && -z "$ZSH_SESSION_PREOUTPUT_FILE_USED" ]]; then
+    cat "$ZSH_SESSION_PREOUTPUT_FILE"
+    export ZSH_SESSION_PREOUTPUT_FILE_USED="true"
+  fi
+}
+setup-history () {
+  emulate -L zsh
+  if [[ -n "$ZSH_SESSION_PREHISTORY_FILE" && -z "$ZSH_SESSION_PREHISTORY_FILE_USED" ]]; then
+    fc -R "$ZSH_SESSION_PREHISTORY_FILE"
+    export ZSH_SESSION_PREHISTORY_FILE_USED="true"
+  fi
+}
+
 add-zsh-hook preexec save-command
-add-zsh-hook precmd save-snapshot-dir
+add-zsh-hook preexec save-history
+add-zsh-hook precmd setup-output
+add-zsh-hook precmd setup-history
+add-zsh-hook precmd save-snapshot-pwd
 add-zsh-hook precmd end-command
 add-zsh-hook precmd save-env
 add-zsh-hook zshexit remove-snapshot-dir
 
-save-snapshot-dir
+save-snapshot-pwd
 save-env
 
 if [[ $1 == eval ]]; then

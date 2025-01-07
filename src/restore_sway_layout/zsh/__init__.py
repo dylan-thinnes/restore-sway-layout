@@ -62,28 +62,58 @@ class Restarter():
         if type_ == 'zsh':
             existing_node = find_existing_instance(snapshot, self.sway_tree)
             if existing_node is not None:
-                print(f'Info: Not restarting zsh snapshot node {snapshot} because it is already running.')
+                print_stderr(f'Info: Not restarting zsh snapshot node {snapshot} because it is already running.')
                 pass
             else:
+                print_stderr(f'Trying to match zsh to: {self.all_zsh_sessions}')
                 matching_sessions = [session for session in self.all_zsh_sessions if session['id'] == snapshot['id']]
+                print_stderr(f'Matched to: {matching_sessions}')
                 if len(matching_sessions) == 1:
                     return lambda: self.restart_one(matching_sessions[0])
                 elif len(matching_sessions) > 1:
-                    print(f'Warning: More than one zsh session matched snapshot {snapshot}, this should not happen!')
+                    print_stderr(f'Warning: More than one zsh session matched snapshot {snapshot}, this should not happen!')
                     pass
                 else:
                     pass
         return None
 
     def restart_one(self, session):
-        print('Restart one: ', session)
-        tmpdir = tempfile.mkdtemp()
         src_zsh_session = os.path.join(os.environ['HOME'], ".zsh-sessions", session['id'])
-        src_zsh_session_env = os.path.join(src_zsh_session, "env")
-        dst_zsh_session_env = os.path.join(tmpdir, 'env')
-        shutil.copyfile(src_zsh_session_env, dst_zsh_session_env)
+        tmpdir = tempfile.mkdtemp()
+
+        def src(name):
+            return os.path.join(src_zsh_session, name)
+
+        def copy_to_dst(name, file):
+            dst = os.path.join(tmpdir, name)
+            shutil.copyfile(file, dst)
+            return dst
+
+        # Copy environment over
+        if os.path.isfile(src('env')):
+            zsh_env_file = copy_to_dst('env', src('env'))
+
+        # Copy stdout history file over
+        if os.path.isfile(src('stdout')):
+            zsh_stdout_file_orig = util.read_file_to_word(src('stdout'))
+            if os.path.isfile(zsh_stdout_file_orig):
+                zsh_stdout_file = copy_to_dst('stdout', zsh_stdout_file_orig)
+                os.remove(zsh_stdout_file_orig)
+
+        # Copy command history over
+        if os.path.isfile(src('history')):
+            zsh_history_file = copy_to_dst('history', src('history'))
+
+        # Delete the original session
         shutil.rmtree(src_zsh_session)
-        return subprocess.run(['kitty', '-d', session['pwd'], '--detach', '--title', f"zsh-restored-{session['pid']}", '--', 'zsh', '-is', 'source', dst_zsh_session_env])
+
+        environ = os.environ.copy()
+        environ['ZSH_SESSION_PREENV_FILE'] = zsh_env_file
+        environ['ZSH_SESSION_PREOUTPUT_FILE'] = zsh_stdout_file
+        environ['ZSH_SESSION_PREHISTORY_FILE'] = zsh_history_file
+
+        # Run kitty with session environment, stdout, and history
+        return subprocess.run(['kitty-with-recording', '-d', session['pwd'], '--detach', '--title', f"zsh-restored-{session['pid']}"], env=environ)
 
 def find_existing_instance(snapshot, existing_tree=None):
     if 'kitty_pid' in snapshot:

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+export PATH="$HOME/.local/bin:$PATH"
+export ZSH_SESSION_DUMP_STDOUT_TO=$(mktemp -p $HOME/.zsh-session-recordings)
+kitty --dump-bytes $ZSH_SESSION_DUMP_STDOUT_TO "$@"

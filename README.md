@@ -63,12 +63,13 @@ Currently in alpha, may work on your machine, no guarantees whatsoever though.
   - Done for now, should be improved in the long term
 - [X] Make the logic & executables work as a standalone python module that you install, i.e. remove paths to executables & manually installing scripts on $PATH
   - Core snapshot/relocate functionality are now all bundled in python
-- [ ] Allow defining custom logic for recreating an app, e.g. launch firefox, launch terminal zsh, launch vim
+- [X] Allow defining custom logic for recreating an app, e.g. launch firefox, launch terminal zsh, launch vim
+  - The `restart` subcommand calls restarter/restart functions
 - [ ] Basic automated testing (initialize a workspace, blow half of it away, restore it)
 
 ### Less important TODOs
 - [ ] Config for adding new snapshot/restart/relocate pairs
-- [ ] Replace bash scripts with python for restore-vim-session and restore-zsh-session
+- [X] Replace bash scripts with python for restore-vim-session and restore-zsh-session
 - [X] Improve the naming around snapshot/recover/restore/capture before they ossify
   - Improved to snapshot/restart/relocate
   - The tool itself is now `restore_sway_layout`
@@ -79,8 +80,8 @@ Currently in alpha, may work on your machine, no guarantees whatsoever though.
 
 ### Other TODOs
 - [ ] "Audit" stage, where you can see what it plans on doing & edit that, similarly to `git rebase -i`
-- [ ] Use env file for shell in which vim runs
-- [ ] Restore history for each shell, not just its env
+- [X] Use env file for shell in which vim runs
+- [X] Restore history for each shell, not just its env
 - [ ] Utility programs for inspecting current and older snapshots
 - [ ] Config for changing roots of zsh-sessions, vim-sessions
 - [ ] Installers for the zsh/vim via oh-my-zsh/plug respectively
