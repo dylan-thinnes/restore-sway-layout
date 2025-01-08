@@ -49,7 +49,7 @@ class Snapshotter():
     # Find kitty node for a vim session's pid
     def match_vim_pid_to_kitty(self, vim_pid):
         parent = psutil.Process(vim_pid)
-        while parent.pid not in util.kitty_nodes(self.sway_tree) and parent is not None:
+        while parent is not None and parent.pid not in util.kitty_nodes(self.sway_tree):
             parent = parent.parent()
         return parent.pid
 
