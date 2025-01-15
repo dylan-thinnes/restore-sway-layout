@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import ijson
 import sys
 import subprocess

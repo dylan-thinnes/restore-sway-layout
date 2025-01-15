@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from restore_sway_layout import swayutil
 from restore_sway_layout import util
 from glob import glob
