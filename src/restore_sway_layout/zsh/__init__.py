@@ -37,7 +37,10 @@ class Snapshotter():
         parent = psutil.Process(zsh_pid)
         while parent is not None and parent.pid not in util.kitty_nodes(self.sway_tree):
             parent = parent.parent()
-        return parent.pid
+        if parent is not None:
+            return parent.pid
+        else:
+            return None
 
     # Save pertinent info for later recovery
     def snapshot(self, node):
