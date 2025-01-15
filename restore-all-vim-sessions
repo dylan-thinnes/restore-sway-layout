@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-shopt -s nullglob
-for root in ~/.vim-sessions/*; do
-  restore-vim-session "$root" &
-done
