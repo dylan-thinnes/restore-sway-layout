@@ -2,3 +2,6 @@ ignore/
 __pycache__
 dist/
 *.egg-info
+test-example/
+build/
+.venv
