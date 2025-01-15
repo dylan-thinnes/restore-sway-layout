@@ -65,16 +65,16 @@ class Restarter():
         if type_ == 'zsh':
             existing_node = find_existing_instance(snapshot, self.sway_tree)
             if existing_node is not None:
-                print_stderr(f'Info: Not restarting zsh snapshot node {snapshot} because it is already running.')
+                util.print_stderr(f'Info: Not restarting zsh snapshot node {snapshot} because it is already running.')
                 pass
             else:
-                print_stderr(f'Trying to match zsh to: {self.all_zsh_sessions}')
+                util.print_stderr(f'Trying to match zsh to: {self.all_zsh_sessions}')
                 matching_sessions = [session for session in self.all_zsh_sessions if session['id'] == snapshot['id']]
-                print_stderr(f'Matched to: {matching_sessions}')
+                util.print_stderr(f'Matched to: {matching_sessions}')
                 if len(matching_sessions) == 1:
                     return lambda: self.restart_one(matching_sessions[0])
                 elif len(matching_sessions) > 1:
-                    print_stderr(f'Warning: More than one zsh session matched snapshot {snapshot}, this should not happen!')
+                    util.print_stderr(f'Warning: More than one zsh session matched snapshot {snapshot}, this should not happen!')
                     pass
                 else:
                     pass
