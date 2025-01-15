@@ -22,7 +22,7 @@ async def snapshot_every(starting_duration, new_duration_queue):
     duration = starting_duration
     while True:
         path = get_output_file()
-        snapshot.save_snapshot(path)
+        snapshot.save_snapshot_without_failure(path)
         try:
             duration = await asyncio.wait_for(new_duration_queue.get(), duration)
         except asyncio.TimeoutError:
@@ -49,7 +49,7 @@ async def handle_commands(reader, writer, tasks, new_duration_queue):
             print_stderr(f'Received line: {line}')
         elif command == 'update-snapshot':
             print_stderr(f"Taking snapshot...")
-            snapshot.save_snapshot(get_output_file())
+            snapshot.save_snapshot_without_failure(get_output_file())
             print_stderr(f"Done!")
         elif command == 'set-rate':
             raw_line = await reader.readline()

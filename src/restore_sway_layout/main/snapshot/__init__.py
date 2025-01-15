@@ -13,6 +13,7 @@ import re
 import time
 import datetime
 import io
+import traceback
 
 def mk_leaf(target_title, app_id):
     return { 'title': target_title, 'app_id': app_id }
@@ -56,13 +57,22 @@ def save_snapshot(output_path_or_stream):
             'workspaces': [node_to_tree(workspace, snapshotters, sway_tree) for workspace in target_workspaces]
         }
 
+    new_snapshot = make_snapshot()
     if isinstance(output_path_or_stream, io.IOBase):
-        json.dump(make_snapshot(), output_path_or_stream)
+        json.dump(new_snapshot, output_path_or_stream)
         print(file=output_path_or_stream)
         output_path_or_stream.flush()
     else:
         with open(output_path_or_stream, 'w') as fd:
-            json.dump(make_snapshot(), fd)
+            json.dump(new_snapshot, fd)
+
+def save_snapshot_without_failure(*args, **kwargs):
+    try:
+        save_snapshot(*args, **kwargs)
+    except Exception as e:
+        util.print_stderr('Taking a snapshot failed! Reason:')
+        traceback.print_exc()
+        pass
 
 def main(args):
     output_path = '/dev/stdout' if args.output == '-' else args.output
