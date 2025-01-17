@@ -16,6 +16,7 @@ import datetime
 import io
 import traceback
 import typing
+import dataclasses
 
 def node_to_workspace(node: dict, snapshotters: list[tuple[str, types.SupportsSnapshot]]) -> types.Workspace:
     return types.Workspace(
@@ -36,7 +37,7 @@ def node_to_tree(node: dict, snapshotters: list[tuple[str, types.SupportsSnapsho
 
         return types.Leaf(
             type = 'unknown',
-            snapshot = node,
+            snapshot = types.RawSwayNode(node),
         )
     else:
         return types.Split(
@@ -65,12 +66,12 @@ def save_snapshot(output_path_or_stream: str | io.IOBase):
 
     new_snapshot = make_snapshot()
     if isinstance(output_path_or_stream, io.IOBase):
-        json.dump(new_snapshot, fp=output_path_or_stream)
+        json.dump(dataclasses.asdict(new_snapshot), fp=output_path_or_stream)
         print(file=output_path_or_stream)
         output_path_or_stream.flush()
     else:
         with open(output_path_or_stream, 'w') as fd:
-            json.dump(new_snapshot, fd)
+            json.dump(dataclasses.asdict(new_snapshot), fd)
 
 def save_snapshot_without_failure(output_path_or_stream: str | io.IOBase):
     try:

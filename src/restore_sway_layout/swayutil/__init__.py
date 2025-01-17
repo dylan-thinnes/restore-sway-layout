@@ -6,19 +6,17 @@ import psutil
 from time import sleep
 import typing
 
-RawSwayNode = typing.NewType("RawSwayNode", dict)
-
 class SwayTree:
     def __init__(self, internal):
         self.internal: typing.Any = internal
 
-    def workspaces(self) -> typing.Generator[RawSwayNode]:
+    def workspaces(self) -> typing.Generator[types.RawSwayNode, None, None]:
         for node in self.nodes():
             if node['type'] == 'workspace' and node['name'] != '__i3_scratch':
                 yield node
 
-    def nodes(self) -> typing.Generator[RawSwayNode]:
-        def go(item, workspace=None) -> typing.Generator[RawSwayNode]:
+    def nodes(self) -> typing.Generator[types.RawSwayNode, None, None]:
+        def go(item, workspace=None) -> typing.Generator[types.RawSwayNode, None, None]:
             item['workspace'] = workspace
             yield item
             if item['type'] == 'workspace':
@@ -32,10 +30,10 @@ class SwayTree:
         return go(self.internal)
 
     @staticmethod
-    def latest() -> SwayTree:
+    def latest() -> 'SwayTree':
         raw_existing_tree = swaymsg(['-t', 'get_tree'])
         existing_tree = json.loads(raw_existing_tree.stdout)
-        return existing_tree
+        return SwayTree(existing_tree)
 
 def swaymsg(args):
     return subprocess.run(['swaymsg'] + args, capture_output=True)
@@ -59,7 +57,7 @@ def find_item(target: dict, wait=True, existing_tree=None):
 
     return None
 
-def match_generic(target: dict, node: RawSwayNode):
+def match_generic(target: dict, node: types.RawSwayNode):
     for key, value in dict.items(target):
         if node.get(key) is None:
             return False

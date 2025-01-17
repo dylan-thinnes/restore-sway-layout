@@ -63,4 +63,4 @@ def build_snapshot(snapshot: types.Snapshot, prompt, keep_prompt):
         set_workspace(workspace.num, workspace.name, workspace.root, prompt, keep_prompt)
 
 def main(args):
-    build_snapshot(json.load(args.snapshot), args.prompt, args.keep_prompt)
+    build_snapshot(types.dict_to_snapshot(json.load(args.snapshot)), args.prompt, args.keep_prompt)
