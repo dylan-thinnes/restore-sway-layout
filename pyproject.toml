@@ -29,3 +29,4 @@ restore-sway-layout = "restore_sway_layout:main"
 disable_error_code = [
     'import-untyped'
 ]
+check_untyped_defs = true

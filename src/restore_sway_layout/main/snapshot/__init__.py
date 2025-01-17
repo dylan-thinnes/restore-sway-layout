@@ -59,10 +59,12 @@ def save_snapshot(output_path_or_stream: str | io.IOBase):
     ]
 
     def make_snapshot() -> types.Snapshot:
-        return {
-            'timestamp': time.time(),
-            'workspaces': [node_to_tree(workspace, snapshotters) for workspace in target_workspaces]
-        }
+        return types.Snapshot(
+            timestamp = time.time(),
+            workspaces = [
+                node_to_tree(workspace, snapshotters) for workspace in target_workspaces
+            ]
+        )
 
     new_snapshot = make_snapshot()
     if isinstance(output_path_or_stream, io.IOBase):
