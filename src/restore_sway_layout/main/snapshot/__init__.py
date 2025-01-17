@@ -17,14 +17,14 @@ import io
 import traceback
 import typing
 
-def node_to_tree(node: dict, snapshotters: list[tuple[str, types.SupportsSnapshot]]) -> types.Tree:
-    workspace_info: types.WorkspaceInfo | None = None
-    if node['type'] == 'workspace':
-        workspace_info = types.WorkspaceInfo(
-            num = node['num'],
-            name = node['name']
-        )
+def node_to_workspace(node: dict, snapshotters: list[tuple[str, types.SupportsSnapshot]]) -> types.Workspace:
+    return types.Workspace(
+        num = node['num'],
+        name = node['name'],
+        root = node_to_tree(node, snapshotters)
+    )
 
+def node_to_tree(node: dict, snapshotters: list[tuple[str, types.SupportsSnapshot]]) -> types.Tree:
     if node['layout'] == 'none':
         for name, snapshotter in snapshotters:
             node_snapshot = snapshotter.snapshot(node)
@@ -32,19 +32,16 @@ def node_to_tree(node: dict, snapshotters: list[tuple[str, types.SupportsSnapsho
                 return types.Leaf(
                     type = name,
                     snapshot = node_snapshot,
-                    workspace = workspace_info
                 )
 
         return types.Leaf(
             type = 'unknown',
             snapshot = node,
-            workspace = workspace_info
         )
     else:
         return types.Split(
             layout = node['layout'],
             subtrees = [node_to_tree(node, snapshotters) for node in node['nodes']],
-            workspace = workspace_info
         )
 
 def save_snapshot(output_path_or_stream: str | io.IOBase):
@@ -62,7 +59,7 @@ def save_snapshot(output_path_or_stream: str | io.IOBase):
         return types.Snapshot(
             timestamp = time.time(),
             workspaces = [
-                node_to_tree(workspace, snapshotters) for workspace in target_workspaces
+                node_to_workspace(workspace, snapshotters) for workspace in target_workspaces
             ]
         )
 

@@ -38,24 +38,3 @@ def random_hex(n):
 
 def print_stderr(msg: str):
     print(msg, file=sys.stderr)
-
-# Remove empty trees, flatten 1-trees
-def clean_tree(tree: types.Tree) -> None | types.Tree:
-    if is_leaf(tree):
-        return tree
-    else:
-        subtree_count = len(tree.subtrees)
-        if subtree_count == 0:
-            return None
-        elif subtree_count == 1:
-            return clean_tree(tree.subtrees[0])
-        else:
-            return types.Split(
-                layout = tree.layout,
-                subtrees = list(filter(None, map(clean_tree, tree.subtrees))),
-                workspace = tree.workspace
-            )
-
-# Test for leaf
-def is_leaf(tree: types.Tree) -> typing_extensions.TypeIs[types.Leaf]:
-    return isinstance(tree, types.Leaf)
