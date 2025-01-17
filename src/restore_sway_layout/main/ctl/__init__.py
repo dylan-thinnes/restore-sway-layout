@@ -25,11 +25,14 @@ async def async_main(args):
                     interface='sway_restore_layout.interface',
                     member='GetSocketFile',
                     message_type=MessageType.METHOD_CALL))
-        if reply.message_type == MessageType.ERROR:
-            print_stderr(f'Tried to query socket file from DBus, got an error instead:\n{reply.body[0]}')
-            return 1
-        socket_file = reply.body[0]
-        print_stderr(f'Got socket file `{socket_file}` by querying DBus.')
+        if reply is not None:
+            if reply.message_type == MessageType.ERROR:
+                print_stderr(f'Tried to query socket file from DBus, got an error instead:\n{reply.body[0]}')
+                return 1
+            socket_file = reply.body[0]
+            print_stderr(f'Got socket file `{socket_file}` by querying DBus.')
+        else:
+            print_stderr(f'Could not get socket file by querying DBus, got no reply message from GetSocketFile.')
     else:
         socket_file = args.socket_file
         print_stderr(f'Got socket file `{socket_file}` from args.')

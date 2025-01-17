@@ -33,7 +33,7 @@ class Snapshotter():
 
     # Find kitty node for a zsh session's pid
     def match_zsh_pid_to_kitty(self, zsh_pid):
-        parent = psutil.Process(zsh_pid)
+        parent: psutil.Process | None = psutil.Process(zsh_pid)
         while parent is not None and parent.pid not in util.kitty_nodes(self.sway_tree):
             parent = parent.parent()
         if parent is not None:

@@ -15,6 +15,7 @@ dependencies = [
     'dbus-fast ~= 2.24.2',
     'ijson ~= 3.3.0',
     'psutil ~= 5.9.0',
+    'typing-extensions ~= 4.12.2',
 ]
 
 [project.urls]
@@ -23,3 +24,8 @@ Issues = "https://github.com/dylan-thinnes/restore-sway-layout/issues"
 
 [project.scripts]
 restore-sway-layout = "restore_sway_layout:main"
+
+[tool.mypy]
+disable_error_code = [
+    'import-untyped'
+]

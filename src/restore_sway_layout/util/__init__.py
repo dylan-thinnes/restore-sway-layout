@@ -1,13 +1,15 @@
 from restore_sway_layout import swayutil
+from restore_sway_layout import types
 import os
 import random
 import sys
 import asyncio
+import typing_extensions
 
-def kitty_nodes(sway_tree):
+def kitty_nodes(sway_tree: swayutil.SwayTree):
     return {
         node['pid']: node
-        for node in swayutil.sway_nodes(sway_tree)
+        for node in sway_tree.nodes()
         if node.get('app_id') == 'kitty'
     }
 
@@ -33,26 +35,29 @@ def read_file_to_f(path, f):
 def random_hex(n):
     return ''.join(['0123456789abcdef'[random.randrange(16)] for i in range(n)])
 
-def print_stderr(msg):
+def print_stderr(msg: str):
     print(msg, file=sys.stderr)
 
 # Remove empty trees, flatten 1-trees
-def clean_tree(tree):
+def clean_tree(tree: types.Tree):
     if is_leaf(tree):
         return tree
-
-    subtree_count = len(tree['subtrees'])
-    if subtree_count == 0:
-        return None
-    elif subtree_count == 1:
-        return clean_tree(tree['subtrees'][0])
     else:
-        return {
-            'layout': tree['layout'],
-            'subtrees': list(map(clean_tree, tree['subtrees']))
-        }
+        subtree_count = len(tree['subtrees'])
+        if subtree_count == 0:
+            return None
+        elif subtree_count == 1:
+            return clean_tree(tree['subtrees'][0])
+        else:
+            return {
+                'layout': tree['layout'],
+                'subtrees': list(map(clean_tree, tree['subtrees']))
+            }
 
-# Test for leaf, turn a leaf into a window, make a leaf targeting a window
-def is_leaf(tree):
+# Test for leaf
+def is_leaf(tree: types.Tree) -> typing_extensions.TypeIs[types.Leaf]:
+    return tree.get("subtrees") is None
+
+def is_split(tree: types.Tree) -> typing_extensions.TypeIs[types.Split]:
     return tree.get("subtrees") is None
 
