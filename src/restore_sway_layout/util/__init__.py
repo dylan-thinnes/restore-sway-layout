@@ -4,6 +4,7 @@ import os
 import random
 import sys
 import asyncio
+import typing
 import typing_extensions
 
 def kitty_nodes(sway_tree: swayutil.SwayTree):
@@ -39,7 +40,7 @@ def print_stderr(msg: str):
     print(msg, file=sys.stderr)
 
 # Remove empty trees, flatten 1-trees
-def clean_tree(tree: types.Tree):
+def clean_tree(tree: types.Tree) -> None | types.Tree:
     if is_leaf(tree):
         return tree
     else:
@@ -49,10 +50,11 @@ def clean_tree(tree: types.Tree):
         elif subtree_count == 1:
             return clean_tree(tree.subtrees[0])
         else:
-            return {
-                'layout': tree.layout,
-                'subtrees': list(map(clean_tree, tree.subtrees))
-            }
+            return types.Split(
+                layout = tree.layout,
+                subtrees = list(filter(None, map(clean_tree, tree.subtrees))),
+                workspace = tree.workspace
+            )
 
 # Test for leaf
 def is_leaf(tree: types.Tree) -> typing_extensions.TypeIs[types.Leaf]:
